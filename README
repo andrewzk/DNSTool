@@ -1,0 +1,43 @@
+DNS Tool
+
+Author: Andrew Keating <andrewzkeating@gmail.com>
+April 19, 2012
+
+This application measures DNS latency for the top 10 Alexa domains periodically 
+and stores the time series and per-domain statistics in a MySQL database. It is 
+useful for monitoring the performance of a DNS resolver over time.
+
+To build, execute make
+To run, execute ./dnstool delay
+
+Delay is in seconds.
+
+Building requires MySQL headers to be present in the include path. By default, 
+these are assumed to reside in /usr/include/mysql. Edit the makefile if you 
+need to modify this path.
+
+Database information is configured through the file db.conf with keys 
+(host, db, user, pass), one per line, separated by =
+
+In order to avoid hitting DNS caches, random 8-character prefixes are prepended 
+to each domain name (e.g., fdx53geb.google.com)
+
+The program uses two DB tables, time_series and domain_stats. If the tables
+do not exist in the database on execution, they are created automatically.
+
+If some rows are already in the tables from a previous execution, it's no 
+problem - we simply "catch up" the running variance from the time_series table.
+
+If a DNS query times out, it is simply ignored - no rows are entered into
+the database for it.
+
+Tested on Ubuntu 10.04 LTS with LDNS 1.6.12, MySQL++ 3.1.0 and libmysqlclient 16
+
+Some features which will be implemented in the future:
+- Support for evaluating multiple DNS resolvers simultaneously - at the moment, 
+it simply pulls the DNS resolver from /etc/resolv.conf
+- Ability to configure domains from an input file, rather than a hard-coded 
+string
+- Concurrent queries
+- Automated plot generation of time series values
+
